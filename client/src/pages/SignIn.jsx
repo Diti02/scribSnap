@@ -4,13 +4,25 @@ import React from 'react'
 import  { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Label, TextInput, Button, Alert, Spinner } from 'flowbite-react'
+
+//React redux 
+import { useDispatch, useSelector } from 'react-redux'
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice'
+
 export const SignIn = () => {
   
   // VVVI :Extract data from form
   const [formData, setFormData] = useState({});
-  const [errorMessage, seterrorMessage] = useState(null);
-  const [loading, setloading] = useState(false);
-const navigate=useNavigate();
+
+  //without React redux 
+  // const [errorMessage, seterrorMessage] = useState(null);
+  // const [loading, setloading] = useState(false);
+
+//React redux 
+  const{loading, error: errorMessage} = useSelector(state=> state.user);
+  const dispatch=useDispatch();
+
+  const navigate=useNavigate();
   const handleChange =(e)=>{
     setFormData({...formData, [e.target.id]:e.target.value.trim()});//trim to remove extra white spaces
     // console.log(e.target.value);
@@ -21,11 +33,19 @@ const navigate=useNavigate();
     //prevent default behaviour on submit i.e page refreshes
     e.preventDefault();
     if(!formData.email || !formData.password){
-      return seterrorMessage('Please fill out all the fields');
+      // return seterrorMessage('Please fill out all the fields');
+
+      return dispatch(signInFailure('Please fill all the fields'));
     }
     try{
-      setloading(true);
-      seterrorMessage(null);
+      //without React redux 
+      // setloading(true);
+      // seterrorMessage(null);
+      //these are same as dispatch
+
+      //React redux 
+      dispatch(signInStart());
+
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -33,18 +53,24 @@ const navigate=useNavigate();
       });
       const data= await res.json();
       if(data.success===false){
-        seterrorMessage(data.message);
+        //without React redux 
+        // seterrorMessage(data.message);
+
+        //React redux 
+        dispatch(signInFailure(data.message));
       }
       //after successful sign up, set loading is false
       //then navigate to sign-in page
-      setloading(false);
+      // setloading(false);
       if(res.ok){
+        dispatch(signInSuccess(data.message));
         navigate('/');
       }
     }
     catch(error){
-      console.log(error);
-      seterrorMessage(error.message);
+      // console.log(error);
+      // seterrorMessage(error.message);
+      dispatch(signInFailure(error.message));
     }
   }
 
