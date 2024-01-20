@@ -6,11 +6,12 @@ import { SignIn } from './pages/SignIn'
 import { Dashboard } from './pages/Dashboard'
 import { Projects } from './pages/Projects'
 import { Header } from './components/Header'
-
+import { FooterCom } from './components/FooterCom';
 const App = () => {
   return (
     <BrowserRouter>
     <Header></Header>
+    {/* <FooterCom></FooterCom> */}
 <Routes>
   <Route path="/" element={<Home></Home>}></Route>
   <Route path="/sign-in" element={<SignIn></SignIn>}></Route>
@@ -18,7 +19,7 @@ const App = () => {
   <Route path="/dashboard" element={<Dashboard></Dashboard>}></Route>
   <Route path="/projects" element={<Projects></Projects>}></Route>
 </Routes>
-
+    <FooterCom></FooterCom>
     </BrowserRouter>
   )
 }
