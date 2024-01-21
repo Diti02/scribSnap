@@ -24,9 +24,10 @@ export const Header = () => {
     <Button className='w-12 h-10 lg:hidden' color='grey' pill>
         <AiOutlineSearch></AiOutlineSearch>
     </Button>
-    <Button className='w-12 h-10 hidden sm:inline' color='grey' pill>
+    {/* light/dark mode toggle button */}
+    {/* <Button className='w-12 h-10 hidden sm:inline' color='grey' pill>
         <FaMoon></FaMoon>
-    </Button>
+    </Button> */}
 
     {/* create a dynamic sign in button, if current user exists
     show their avatar and dropdown
