@@ -64,3 +64,67 @@ export const signin = async (req, res, next)=>{
         next(error);
     }
 };
+
+
+export const google = async(req, res, next)=>{
+    const {email, name, googlePhotoUrl} = req.body;
+    try{
+        const user = await User.findOne({email});
+        //if user exists
+        if(user){
+            const token= jwt.sign(
+                {   id:user._id},
+                    process.env.JWT_SECRET     
+            );
+            //extracts password from validUser._doc and renames it pass
+            //the remaining elements are stored in rest variable
+            //json only sends rest excluding the password for security purpose
+            const {password: pass, ...rest}=user._doc;
+        
+            res
+            .status(200)
+            .cookie('access_token',token,{
+                httpOnly: true,
+            })
+            .json(rest);
+        }
+        else{
+            //if user does not exists create new user
+
+            //generate a random password
+            const generatedPassword =
+            Math.random().toString(36).slice(-8)+
+            Math.random().toString(36).slice(-8);
+
+            //hash this generated password
+            const hashedPassword = bcryptjs.hashSync(generatedPassword,10);
+
+            //now create the new user
+            const newUser = new User({
+                username: name.toLowerCase().split('').join('')+
+                Math.random().toString(9).slice(-4),
+                email,
+                password:hashedPassword,
+                profilePicture: googlePhotoUrl,
+            });
+            await newUser.save();
+            const token= jwt.sign(
+                {   id:newUser._id},
+                    process.env.JWT_SECRET     
+            );
+            //extracts password from validUser._doc and renames it pass
+            //the remaining elements are stored in rest variable
+            //json only sends rest excluding the password for security purpose
+            const {password: pass, ...rest}=newUser._doc;
+        
+            res
+            .status(200)
+            .cookie('access_token',token,{
+                httpOnly: true,
+            })
+            .json(rest);
+        }
+    } catch(error){
+        console.log(error);
+    }
+}

@@ -1,4 +1,4 @@
-import React from 'react'
+
 
 
 import  { useState } from 'react'
@@ -8,6 +8,7 @@ import { Label, TextInput, Button, Alert, Spinner } from 'flowbite-react'
 //React redux 
 import { useDispatch, useSelector } from 'react-redux'
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice'
+import { OAuth } from '../components/OAuth.jsx'
 
 export const SignIn = () => {
   
@@ -117,6 +118,7 @@ export const SignIn = () => {
               ):"Sign In"
             }
             </Button>
+            <OAuth></OAuth>
           </form>
           <div className="flex gap-2 text-sm mt-5 ">
             <span>

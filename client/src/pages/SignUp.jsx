@@ -1,6 +1,7 @@
 import  { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Label, TextInput, Button, Alert, Spinner } from 'flowbite-react'
+import { OAuth } from '../components/OAuth.jsx'
 export const SignUp = () => {
   
   // VVVI :Extract data from form
@@ -82,6 +83,7 @@ const navigate=useNavigate();
             {/* in flow byte we need to mention the type of the button */}
             {/* disabled isables multiple time clicking sign up, if one sign up query is in queue */}
             <Button gradientDuoTone='purpleToBlue' type='submit' disabled={loading}>
+            
             {
               loading?(<>
                 <Spinner size='sm'/>
@@ -91,6 +93,7 @@ const navigate=useNavigate();
               ):"Sign Up"
             }
             </Button>
+            <OAuth></OAuth>
           </form>
           <div className="flex gap-2 text-sm mt-5 ">
             <span>
