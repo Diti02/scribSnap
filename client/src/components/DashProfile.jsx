@@ -6,7 +6,8 @@ import { updateStart,
         updateFailure,
         deleteUserStart,
         deleteUserSuccess,
-        deleteUserFailure,      
+        deleteUserFailure,
+        signoutSuccess      
       } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import {getDownloadURL, 
@@ -142,6 +143,23 @@ export const DashProfile = () => {
       }
     };
 
+    const handlesignOut = async()=>{
+      try{
+        const res = await fetch(`/api/user/signout`, {
+          method: 'POST',
+        });
+        const data= await res.json();
+        if(!res.ok){
+          console.log(data.message);
+        }
+        else{
+          dispatch(signoutSuccess());
+        }
+      }catch(error){
+
+      }
+
+    }
 
     return (
         <div className="max-w-lg mx-auto p-3 w-full">
@@ -199,7 +217,7 @@ export const DashProfile = () => {
             </form>
             <div className="text-red-500 flex justify-between mt-5">
                 <span onClick={()=>setShowModal(true) } className="cursor-pointer font-semibold">Delete Account</span>
-                <span className="cursor-pointer font-semibold">Sign Out</span>
+                <span onClick={handlesignOut} className="cursor-pointer font-semibold">Sign Out</span>
 
             </div>
             {updateUserSuccess && (
