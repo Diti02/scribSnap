@@ -18,8 +18,9 @@ import {app} from '../firebase';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import {HiOutlineExclamationCircle} from 'react-icons/hi';
+import { Link } from "react-router-dom";
 export const DashProfile = () => {
-    const { currentUser,error } = useSelector( (state) => state.user);
+    const { currentUser,error,loading } = useSelector( (state) => state.user);
     const [imageFile, setImageFile] = useState(null);
     const [imageFileUrl, setImageFileUrl] = useState(null);
     const [imageFileUploadProgress, setimageFileUploadProgress] = useState(null);
@@ -48,7 +49,7 @@ export const DashProfile = () => {
     },[imageFile]);
 
     const uploadImage = async()=>{
-    // console.log("Uploading.......");
+    // console.log(currentUser.isAdmin);
     setImageFileUploading(true);
     setimageFileUploadError(null);
     const storage = getStorage(app);
@@ -80,6 +81,8 @@ export const DashProfile = () => {
     };
 
     const handleChange= (e)=>{
+      console.log(currentUser.
+        idAdmin);
       setformData({...formData, [e.target.id]: e.target.value});
       
     };
@@ -213,7 +216,21 @@ export const DashProfile = () => {
                 <TextInput type='text' id='username' placeholder="username" defaultValue={currentUser.username} className="font-semibold" onChange={handleChange}></TextInput>
                 <TextInput type='email' id='email' placeholder="email" defaultValue={currentUser.email} className="font-semibold"onChange={handleChange}></TextInput>
                 <TextInput type='password' id='password' placeholder="password" className="font-semibold" onChange={handleChange}></TextInput>
-                <Button type='submit' gradientDuoTone='purpleToBlue'>Update</Button>
+                <Button type='submit' gradientDuoTone='purpleToBlue'  outline
+          disabled={loading || imageFileUploading}>
+                {loading ? 'Loading...' : 'Update'}
+                </Button>
+                {currentUser.idAdmin && (
+          <Link to={'/create-post'}>
+            <Button
+              type='button'
+              gradientDuoTone='purpleToPink'
+              className='w-full'
+            >
+              Create a post
+            </Button>
+          </Link>
+        )}
             </form>
             <div className="text-red-500 flex justify-between mt-5">
                 <span onClick={()=>setShowModal(true) } className="cursor-pointer font-semibold">Delete Account</span>
