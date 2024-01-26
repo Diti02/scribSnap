@@ -57,6 +57,8 @@ const CreatePost = () => {
     const handleSubmit = async (e) =>{
         e.preventDefault();
         try{
+            console.log("fetch");
+            setPublishError(null);
             const res= await fetch('/api/post/create',{
                 method: 'POST',
                 headers: {
@@ -64,16 +66,19 @@ const CreatePost = () => {
                 },
                 body: JSON.stringify(formData),
             });
-            if(!res.ok){
-                setPublishError(data.message)
-                return 
-            }
+            const data= await res.json();
+            console.log(res);
+            
             
             if(res.ok){
                 setPublishError(null);
                 navigate(`/post/${data.slug}`);
             }
-            console.log(data);
+            if(!res.ok){
+                setPublishError(data.message)
+                return 
+            }
+            
         }catch(error){
             setPublishError('Something went wrong');
         }

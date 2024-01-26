@@ -6,6 +6,7 @@ import { Link } from "react-router-dom"
 export const DashPosts = () => {
   const {currentUser}= useSelector((state)=>state.user)
   const [userPosts, setuserPosts]= useState([])
+  const [showMore, setShowMore]=useState(true);
   useEffect(()=>{
     const fetchPosts = async() =>{
       try{
@@ -13,22 +14,48 @@ export const DashPosts = () => {
         const data= await res.json();
         if(res.ok){
           setuserPosts(data.posts);
-          console.log(data.posts);
+          if(data.posts.length<9){
+            setShowMore(false);
+          }
         }
       }catch(error){
         console.log(error.message);
       }
     }
+
+    
     //if current user is admin call the fetchposts
     if(currentUser.idAdmin){
       fetchPosts();
     }
   }, [currentUser._id])
+
+  const handleShowMore = async ()=>{
+    const startIndex = userPosts.length;
+    console.log(startIndex);
+    try{
+      console.log("trying");
+      const res = await fetch(`/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`);
+      const data=await res.json();
+      if(res.ok){
+        console.log("fetching more");
+        console.log(data);
+        setuserPosts((prev) => [...prev, ...data.posts]);
+        console.log(data.posts);
+        if(data.posts.length<=9){
+          setShowMore(false);
+        }
+      }
+    }catch(error){
+        console.log(error);
+    }
+  }
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scroll-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scroll-thumb-slate-500">
     {/* if current user is admin and no of posts is >0 show else show no posts */}
-    {currentUser.idAdmin && userPosts.length > 0? 
-    (
+    {currentUser.idAdmin && userPosts.length > 0?
+    <> 
+    
       <Table hoverable classname='shadow-md'>
       <Table.Head>
         <Table.HeadCell>Date Updated</Table.HeadCell>
@@ -77,8 +104,17 @@ export const DashPosts = () => {
           </Table.Row>
         </Table.Body>
       ))}
+      
       </Table>
-    ):(
+      {
+        showMore && 
+          (<button onClick={handleShowMore} className="w-full text-teal-500 self-center text-sm py-7 " >
+          Show More
+          </button>)
+          
+      }
+      </>
+    :(
       <p>You have no posts yet</p>
       
     )}
