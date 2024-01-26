@@ -1,7 +1,54 @@
-import { Button, FileInput, Select, TextInput } from 'flowbite-react';
+import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react';
+import { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import {getStorage, uploadBytesResumable,ref,getDownloadURL} from 'firebase/storage';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+import {app} from '../firebase'
+
 const CreatePost = () => {
+    const [file, setFile]= useState(null);
+    const [imageFileUploadProgress, setimageFileUploadProgress] = useState(null);
+    const [imageFileUploadError, setimageFileUploadError] = useState(null);
+    const [formData,setformData]= useState({});
+    const handleUploadImage = async ()=>{
+        try{
+            if(!file){
+                setimageFileUploadError('Please select an image');
+                return;
+            }
+            setimageFileUploadError(null);
+            const storage=getStorage(app);
+            const fileName= new Date().getTime()+ '-'+ file.name;
+            const storageRef= ref(storage, fileName);
+            const uploadTask= uploadBytesResumable(storageRef,file);
+            uploadTask.on(
+                'state_changed',
+                (snapshot)=>{
+                    const progress= (snapshot.bytesTransferred/snapshot.totalBytes)*100;
+                    //toFixed removed decimal places
+                    setimageFileUploadProgress(progress.toFixed(0));
+                },
+                (error)=>{
+                    setimageFileUploadError("File must be less than 2MB");
+                    setimageFileUploadProgress(null);
+                
+                },
+                ()=>{
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL)=>{
+                        setimageFileUploadProgress(null);
+                        setimageFileUploadError(null);
+                        setformData({...formData, image: downloadURL});
+                    });
+                }
+            );
+        }catch(error){
+            setimageFileUploadError("Image upload failed");
+            setimageFileUploadProgress(null);
+
+        }
+    }
     return (
         <div className='p-3 max-w-3xl mx-auto min-h-screen'>
             <h1 className='text-center text-3xl my-7 font-semibold'>Create a post</h1>
@@ -22,16 +69,39 @@ const CreatePost = () => {
                     </Select>
                 </div>
                 <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
-                    <FileInput type='file' accept='image/*' />
+                    <FileInput type='file' accept='image/*' onChange={(e)=>setFile(e.target.files[0])}/>
                     <Button
                         type='button'
                         gradientDuoTone='purpleToBlue'
                         size='sm'
                         outline
+                        onClick={handleUploadImage}
+                        disabled={imageFileUploadProgress}
                     >
-                        Upload image
+                    {imageFileUploadProgress ?
+                    (<div className='w-16 h-16'>
+                        <CircularProgressbar
+                        value={imageFileUploadProgress}
+                        text={`${imageFileUploadProgress || 0}%`}/>
+                    </div>)
+                    : ('Upload image'
+                    )}                        
                     </Button>
-                </div>
+                    </div>
+                    {/* if error exists in file uploading */}
+                    {imageFileUploadError && 
+                        <Alert color='failure'>
+                            {imageFileUploadError}
+                        </Alert>
+                    }
+                    {/* after image is uploaded it contains from data, then display the image */}
+                    {formData.image && (
+                        <img
+                        src={formData.image}
+                        alt='upload'
+                        className='w-full h-72 object-cover'/>
+                    )}
+                
                 <ReactQuill
                     theme='snow'
                     placeholder='Write something...'
