@@ -46,7 +46,7 @@ export const signin = async (req, res, next)=>{
         }
         const token= jwt.sign(
             {   id:validUser._id,
-                isAdmin:validUser.isAdmin
+                idAdmin:validUser.idAdmin
             },
                 process.env.JWT_SECRET     
         );
@@ -76,7 +76,7 @@ export const google = async(req, res, next)=>{
         if(user){
             const token= jwt.sign(
                 {   id:user._id,
-                    isAdmin:user.isAdmin
+                    idAdmin:user.idAdmin
                 },
                     process.env.JWT_SECRET     
             );
@@ -113,7 +113,7 @@ export const google = async(req, res, next)=>{
             });
             await newUser.save();
             const token= jwt.sign(
-                {   id:newUser._id, isAdmin:newUser.isAdmin},
+                {   id:newUser._id, idAdmin:newUser.idAdmin},
                     process.env.JWT_SECRET     
             );
             //extracts password from validUser._doc and renames it pass
