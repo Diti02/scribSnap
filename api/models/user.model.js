@@ -23,9 +23,9 @@ const userSchema = new mongoose.Schema({
     idAdmin:{
         type:Boolean,
         default:false
-    }
+    },
 },
-    {timestamp:true}
+    {timestamps:true}
 
 );
 
