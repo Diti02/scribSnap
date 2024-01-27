@@ -1,0 +1,199 @@
+import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import {getStorage, uploadBytesResumable,ref,getDownloadURL} from 'firebase/storage';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+import {app} from '../firebase'
+
+const UpdatePost = () => {
+    
+    const [file, setFile]= useState(null);
+    const [imageFileUploadProgress, setimageFileUploadProgress] = useState(null);
+    const [imageFileUploadError, setimageFileUploadError] = useState(null);
+    const [formData,setformData]= useState({});
+    const [publishError, setPublishError]= useState(null);
+    const navigate=useNavigate();
+    const {currentUser}=useSelector((state)=> state.user);
+    //get post id from request body parameter
+    const {postId}=useParams();
+    console.log(formData);
+
+
+    useEffect(()=>{
+        try{
+            const fetchPost = async ()=> {
+            const res= await fetch(`/api/post/getposts?postId=${postId}`);
+            
+            
+            const data =await res.json();
+            if(!res.ok){
+                console.log(data.message);
+                setPublishError(data.message);
+                return;
+            }
+            if(res.ok){
+                setPublishError(null);
+                setformData(data.posts[0]);
+
+            }
+        // }
+    };
+        fetchPost();
+}
+        catch(error){
+            console.log(error.message);
+        }
+    },[postId]);
+
+    const handleUploadImage = async ()=>{
+        try{
+            if(!file){
+                setimageFileUploadError('Please select an image');
+                return;
+            }
+            setimageFileUploadError(null);
+            const storage=getStorage(app);
+            const fileName= new Date().getTime()+ '-'+ file.name;
+            const storageRef= ref(storage, fileName);
+            const uploadTask= uploadBytesResumable(storageRef,file);
+            uploadTask.on(
+                'state_changed',
+                (snapshot)=>{
+                    const progress= (snapshot.bytesTransferred/snapshot.totalBytes)*100;
+                    //toFixed removed decimal places
+                    setimageFileUploadProgress(progress.toFixed(0));
+                },
+                (error)=>{
+                    setimageFileUploadError("File must be less than 2MB");
+                    setimageFileUploadProgress(null);
+                
+                },
+                ()=>{
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL)=>{
+                        setimageFileUploadProgress(null);
+                        setimageFileUploadError(null);
+                        setformData({...formData, image: downloadURL});
+                    });
+                }
+            );
+        }catch(error){
+            setimageFileUploadError("Image upload failed");
+            setimageFileUploadProgress(null);
+
+        }
+    }
+    const handleSubmit = async (e) =>{
+        e.preventDefault();
+        try{
+            console.log("fetch");
+            setPublishError(null);
+            const res= await fetch(`/api/post/updatepost/${formData._id}/${currentUser._id}`,{
+                method: 'PUT',
+                headers: {
+                    'Content-Type' : 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+            const data= await res.json();
+            console.log(res);
+            
+            
+            if(res.ok){
+                setPublishError(null);
+                navigate(`/post/${data.slug}`);
+            }
+            if(!res.ok){
+                setPublishError(data.message)
+                return 
+            }
+            
+        }catch(error){
+            setPublishError('Something went wrong');
+        }
+    }
+    return (
+        <div className='p-3 max-w-3xl mx-auto min-h-screen'>
+            <h1 className='text-center text-3xl my-7 font-semibold'>Update post</h1>
+            <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+                <div className='flex flex-col gap-4 sm:flex-row justify-between'>
+                    <TextInput
+                        type='text'
+                        placeholder='Title'
+                        required
+                        id='title'
+                        className='flex-1'
+                        onChange={(e)=>
+                        setformData({...formData, title: e.target.value})
+                        }
+                        value={formData.title}
+                    />
+                    <Select
+                    onChange={(e)=>
+                        setformData({...formData, category: e.target.value})
+                        }
+                    value={formData.category}
+                    >
+                        <option value='uncategorized'>Select a category</option>
+                        <option value='javascript'>JavaScript</option>
+                        <option value='reactjs'>React.js</option>
+                        <option value='nextjs'>Next.js</option>
+                    </Select>
+                </div>
+                <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
+                    <FileInput type='file' accept='image/*' onChange={(e)=>setFile(e.target.files[0])}/>
+                    <Button
+                        type='button'
+                        gradientDuoTone='purpleToBlue'
+                        size='sm'
+                        outline
+                        onClick={handleUploadImage}
+                        disabled={imageFileUploadProgress}
+                    >
+                    {imageFileUploadProgress ?
+                    (<div className='w-16 h-16'>
+                        <CircularProgressbar
+                        value={imageFileUploadProgress}
+                        text={`${imageFileUploadProgress || 0}%`}/>
+                    </div>)
+                    : ('Upload image'
+                    )}                        
+                    </Button>
+                    </div>
+                    {/* if error exists in file uploading */}
+                    {imageFileUploadError && 
+                        <Alert color='failure'>
+                            {imageFileUploadError}
+                        </Alert>
+                    }
+                    {/* after image is uploaded it contains from data, then display the image */}
+                    {formData.image && (
+                        <img
+                        src={formData.image}
+                        alt='upload'
+                        className='w-full h-72 object-cover'/>
+                    )}
+                
+                <ReactQuill
+                    theme='snow'
+                    value={formData.content}
+                    placeholder='Write something...'
+                    className='h-72 mb-12'
+                    required
+                    onChange={(value)=>
+                        setformData({...formData, content: value})
+                        }
+                />
+                <Button type='submit' gradientDuoTone='purpleToPink'>
+                    Update Post
+                </Button>
+                {publishError && <Alert color='failure' className='mt-5'>{publishError}</Alert> }
+            </form>
+        </div>
+    )
+}
+
+export default UpdatePost
