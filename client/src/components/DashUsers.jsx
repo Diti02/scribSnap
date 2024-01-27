@@ -57,27 +57,27 @@ export const DashUsers = () => {
   }
 
   const handleDeleteUser = async ()=>{
-//     setShowModal(false);
-//     try{
-//       const res= await fetch(
-//       `/api/user/deleteuser/${userIdToDelete}/${currentUser._id}`,
-//       {
-//         method: 'DELETE',
+    setShowModal(false);
+    try{
+      const res= await fetch(
+      `/api/user/delete/${userIdToDelete}/`,
+      {
+        method: 'DELETE',
 
-//       }
-//       );
-//       const data= await res.json;
-//       if(!res.ok){
-//         console.log(data.message);
-//       } else{
-//         setuserPosts((prev)=>
-//           prev.filter((post)=>post.id!== postIdToDelete)
-//         );
-//       }
+      }
+      );
+      const data= await res.json;
+      if(!res.ok){
+        console.log(data.message);
+      } else{
+        setusers((prev)=>
+          prev.filter((user)=>user._id!== userIdToDelete)
+        );
+      }
 
-//     }catch(error){
-//       console.log(error.message);
-//     }
+    }catch(error){
+      console.log(error.message);
+    }
 
   };
   return (
