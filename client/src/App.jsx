@@ -11,9 +11,11 @@ import {OnlyAdminPrivateRoute} from './components/OnlyAdminPrivateRoute';
 import CreatePost from './pages/CreatePost.jsx'
 import UpdatePost from './pages/UpdatePost.jsx'
 import { PostPage } from './pages/PostPage.jsx'
+import ScrollToTop from './components/ScrollToTop.jsx'
 const App = () => {
   return (
     <BrowserRouter>
+    <ScrollToTop></ScrollToTop>
     <Header></Header>
     {/* <FooterCom></FooterCom> */}
 <Routes>
