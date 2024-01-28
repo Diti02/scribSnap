@@ -10,6 +10,7 @@ import PrivateRoute from './components/PrivateRoute';
 import {OnlyAdminPrivateRoute} from './components/OnlyAdminPrivateRoute';
 import CreatePost from './pages/CreatePost.jsx'
 import UpdatePost from './pages/UpdatePost.jsx'
+import { PostPage } from './pages/PostPage.jsx'
 const App = () => {
   return (
     <BrowserRouter>
@@ -35,6 +36,8 @@ const App = () => {
   </Route>
   
   <Route path="/projects" element={<Projects></Projects>}></Route>
+  <Route path="/post/:postSlug" element={<PostPage></PostPage>}></Route>
+  
 </Routes>
     <FooterCom></FooterCom>
     </BrowserRouter>
