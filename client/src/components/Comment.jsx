@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import {useSelector } from "react-redux";
 import {FaThumbsUp} from "react-icons/fa"
 import {Button, Textarea} from 'flowbite-react';
-export const Comment = ({comment, onLike, onEdit}) => {
+export const Comment = ({comment, onLike, onEdit, onDelete}) => {
     const [user, setUser]=useState({});
     const [isEditing, setIsEditing]= useState(false);
     const [editedContent, setEditedContent]=useState(comment.content);
@@ -34,7 +34,7 @@ export const Comment = ({comment, onLike, onEdit}) => {
         const res= await fetch(`/api/comment/editComment/${comment._id}`,{
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             content: editedContent
@@ -111,12 +111,22 @@ export const Comment = ({comment, onLike, onEdit}) => {
           </p>
           {
             currentUser && (currentUser._id === comment.userId || currentUser.idAdmin) && (
+              <>
               <button type='button'
-              className="text-gray-400 hover:text-blue-500"
               onClick={handleEdit}
+              className="text-gray-400 hover:text-blue-500"
+              
               >
                 Edit
               </button>
+              {/* {console.log(comment._id)} */}
+              <button type='button'
+              className="text-gray-600 hover:text-red-500"
+              onClick={()=> onDelete(comment._id)}
+              >
+                Delete
+              </button>
+              </>
             )
           }
         </div>
