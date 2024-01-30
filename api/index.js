@@ -8,6 +8,10 @@ import postRoutes from './routes/post.route.js'
 import commentRoutes from './routes/comment.route.js'
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+
+//deployment
+import path from 'path';
+
 dotenv.config();
 mongoose.connect(process.env.MONGO).
 then(()=> {console.log("connected")}).
@@ -15,6 +19,10 @@ catch((err)=>{
     console.log(err);
 });
 // FPRuWlth5E9cVFtT
+
+//deployment
+const __dirname = path.resolve();
+
 const app= express();
 
 
@@ -32,6 +40,14 @@ app.use('/api/auth',authRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/comment',commentRoutes);
 //middleware
+
+//deployment
+app.use(express.static(path.join(__dirname, '/client/dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
+
 app.use((err, req, res,next)=>{
     const statusCode = err.statusCode || 500;
     const message= err.message || 'Internal Server Error';
