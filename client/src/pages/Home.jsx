@@ -24,9 +24,7 @@ export const Home = () => {
       <p className="text-gray-500 text-xs">Whether you're a seasoned tech enthusiast or a curious newcomer, our blog is your gateway to a world where cutting-edge ideas meet insightful analysis.</p>
       <Link to='/search' className='text-xs sm:text-sm text-blue-700 font-bold font-style: italic hover:underline'>View All Posts</Link>
     </div>
-    <div className="p-3 bg-sky-50 mx-10 my-5 mx-auto">
-      <CallToAction/>
-    </div>
+   
     <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 py-7">
       {posts && posts.length > 0 && (
         <div className="flex flex-col gap-6">
@@ -39,6 +37,9 @@ export const Home = () => {
           <Link to='/search' className='text-lg  text-blue-700 text-center font-bold font-style: italic hover:underline'>View All Posts</Link>
         </div>
       )}
+    </div>
+    <div className="p-3 bg-sky-50 mx-10 my-5 mx-auto">
+      <CallToAction/>
     </div>
     </div>
   )
